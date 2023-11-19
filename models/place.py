@@ -1,10 +1,17 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
 from models.base_model import BaseModel
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from models.review import Review
+from models.amenity import Amenity
+from models import storage
 
+place_amenity = Table(
+    'place_amenity', BaseModel.metadata,
+    Column('place_id', String(60), ForeignKey('places.id'), primary_key=True, nullable=False),
+    Column('amenity_id', String(60), ForeignKey('amenities.id'), primary_key=True, nullable=False)
+)
 
 class Place(BaseModel):
     """ A place to stay """
@@ -23,3 +30,15 @@ class Place(BaseModel):
     amenity_ids = []
     user = relationship("User", back_populates="places", foreign_keys=[user_id])
     reviews = relationship("Review", back_populates="place", cascade="all, delete-orphan")
+    amenities = relationship("Amenity", secondary=place_amenity, viewonly=False)
+
+    @property
+    def amenities(self):
+        """Getter attribute amenities"""
+        return [storage.all(Amenity)[amenity_id] for amenity_id in self.amenity_ids]
+
+    @amenities.setter
+    def amenities(self, obj):
+        """Setter attribute amenities"""
+        if isinstance(obj, Amenity):
+            self.amenity_ids.append(obj.id)
