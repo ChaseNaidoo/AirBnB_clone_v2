@@ -5,8 +5,8 @@ from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from models.review import Review
 from models.amenity import Amenity
-from models import storage
 from sqlalchemy.ext.declarative import declarative_base
+from models import storage
 
 
 place_amenity = Table(

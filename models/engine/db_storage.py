@@ -2,8 +2,15 @@
 """DB Storage engine for HBNB project"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-import os
+from sqlalchemy.orm.session import sessionmaker, Session
+from os import getenv
 from models.base_model import BaseModel, Base
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 
 
 class DBStorage:
@@ -13,11 +20,11 @@ class DBStorage:
 
     def __init__(self):
         """Initialize DBStorage"""
-        user = os.environ.get('HBNB_MYSQL_USER')
-        pwd = os.environ.get('HBNB_MYSQL_PWD')
-        host = os.environ.get('HBNB_MYSQL_HOST', default='localhost')
-        db = os.environ.get('HBNB_MYSQL_DB')
-        env = os.environ.get('HBNB_ENV')
+        user = getenv('HBNB_MYSQL_USER')
+        pwd = getenv('HBNB_MYSQL_PWD')
+        host = getenv('HBNB_MYSQL_HOST', default='localhost')
+        db = getenv('HBNB_MYSQL_DB')
+        env = getenv('HBNB_ENV')
 
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'
                                       .format(user, pwd, host, db),
