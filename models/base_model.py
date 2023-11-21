@@ -5,11 +5,11 @@ from datetime import datetime
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from models import storage
+import models
 
 Base = declarative_base()
 
-class BaseModel(Base):
+class BaseModel:
     """A base class for all hbnb models"""
     id = Column(String(60), unique=True, nullable=False, primary_key=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)

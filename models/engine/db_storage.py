@@ -21,8 +21,10 @@ class DBStorage:
     def __init__(self):
         """Initialize DBStorage"""
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'
-                                      .format(getenv('HBNB_MYSQL_USER'), getenv('HBNB_MYSQL_PWD'),
-                                              getenv('HBNB_MYSQL_HOST'), getenv('HBNB_MYSQL_DB')),
+                                      .format(getenv('HBNB_MYSQL_USER'),
+                                              getenv('HBNB_MYSQL_PWD'),
+                                              getenv('HBNB_MYSQL_HOST'),
+                                              getenv('HBNB_MYSQL_DB')),
                                       pool_pre_ping=True)
 
         if getenv('HBNB_ENV') == 'test':
@@ -34,17 +36,12 @@ class DBStorage:
     def all(self, cls=None):
         """Query on the current database session"""
         from models import storage
-        classes = [BaseModel, User, State, City, Amenity, Place, Review]
+        classes = [cls] if cls else [User, State, City, Amenity, Place, Review]
         objects = {}
-
-        if cls:
-            classes = [cls]
 
         for class_ in classes:
             query = self.__session.query(class_).all()
-            for obj in query:
-                key = '{}.{}'.format(type(obj).__name__, obj.id)
-                objects[key] = obj
+            objects.update({'{}.{}'.format(type(obj).__name__, obj.id): obj for obj in query})
 
         return objects
 
@@ -67,7 +64,6 @@ class DBStorage:
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
 
-
     def close(self):
-        """Remove open scoped session from current database"""
+        """Remove open scoped session from the current database"""
         self.__session.remove()
