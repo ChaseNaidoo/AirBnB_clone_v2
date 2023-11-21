@@ -20,17 +20,12 @@ class DBStorage:
 
     def __init__(self):
         """Initialize DBStorage"""
-        user = getenv('HBNB_MYSQL_USER')
-        pwd = getenv('HBNB_MYSQL_PWD')
-        host = getenv('HBNB_MYSQL_HOST', default='localhost')
-        db = getenv('HBNB_MYSQL_DB')
-        env = getenv('HBNB_ENV')
-
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'
-                                      .format(user, pwd, host, db),
+                                      .format(getenv('HBNB_MYSQL_USER'), getenv('HBNB_MYSQL_PWD'),
+                                              getenv('HBNB_MYSQL_HOST'), getenv('HBNB_MYSQL_DB')),
                                       pool_pre_ping=True)
 
-        if env == 'test':
+        if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
@@ -71,3 +66,8 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
+
+
+    def close(self):
+        """Remove open scoped session from current database"""
+        self.__session.remove()
