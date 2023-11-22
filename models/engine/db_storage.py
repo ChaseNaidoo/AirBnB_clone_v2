@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""DB Storage engine for HBNB project"""
+11;rgb:0000/0000/0000"""DB Storage engine for HBNB project"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.session import sessionmaker, Session
@@ -25,7 +25,7 @@ class DBStorage:
         HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
         HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
         HBNB_ENV = getenv('HBNB_ENV')
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
                                       .format(HBNB_MYSQL_USER,
                                               HBNB_MYSQL_PWD,
                                               HBNB_MYSQL_HOST,
@@ -62,8 +62,6 @@ class DBStorage:
 
     def reload(self):
         """Create all tables in the database"""
-        if self.__session:
-            self.__session.remove()
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
