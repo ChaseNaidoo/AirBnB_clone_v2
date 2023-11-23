@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
+import shlex
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
-import os
+from os import getenv
+import models
 
 
 place_amenity = Table(
@@ -13,7 +15,7 @@ place_amenity = Table(
 )
 
 class Place(BaseModel, Base):
-    """ A place to stay """
+    """A place to stay"""
     __tablename__ = 'places'
 
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
@@ -27,17 +29,27 @@ class Place(BaseModel, Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     amenity_ids = []
-    user = relationship("User", back_populates="places", foreign_keys=[user_id])
-    reviews = relationship("Review", back_populates="place", cascade="all, delete-orphan")
-    amenities = relationship("Amenity", secondary=place_amenity, viewonly=False)
 
-    @property
-    def amenities(self):
-        """Getter attribute amenities"""
-        return [storage.all(Amenity)[amenity_id] for amenity_id in self.amenity_ids]
+    if getenv("HBNB_TYPE_STORAGE") == "db":
+        reviews = relationship("Review", cascade='all, delete, delete-orphan', backref="place")
+        amenities = relationship("Amenity", secondary=place_amenity,
+                                 viewonly=False,
+                                 back_populates="place_amenities")
+    else:
+        @property
+        def reviews(self):
+            """Returns list of reviews.id"""
+            return [var[key] for key in models.storage.all() if isinstance((review := key.replace('.', ' '))
+                                                                           and shlex.split(review), tuple)
+                    and review[0] == 'Review' and (elem := var[key]).place_id == self.id]
 
-    @amenities.setter
-    def amenities(self, obj):
-        """Setter attribute amenities"""
-        if isinstance(obj, Amenity):
-            self.amenity_ids.append(obj.id)
+        @property
+        def amenities(self):
+            """Returns list of amenity ids"""
+            return self.amenity_ids
+
+        @amenities.setter
+        def amenities(self, obj=None):
+            """Appends amenity ids to the attribute"""
+            if isinstance(obj, Amenity) and obj.id not in self.amenity_ids:
+                self.amenity_ids.append(obj.id)
