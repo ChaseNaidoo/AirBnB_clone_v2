@@ -20,36 +20,30 @@ class DBStorage:
 
     def __init__(self):
         """Initialize DBStorage"""
-        user = getenv('HBNB_MYSQL_USER')
-        pwd = getenv('HBNB_MYSQL_PWD')
-        host = getenv('HBNB_MYSQL_HOST', default='localhost')
-        db = getenv('HBNB_MYSQL_DB')
-        env = getenv('HBNB_ENV')
-
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'
-                                      .format(user, pwd, host, db),
+        HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
+        HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
+        HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
+        HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
+        HBNB_ENV = getenv('HBNB_ENV')
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
+                                      .format(HBNB_MYSQL_USER,
+                                              HBNB_MYSQL_PWD,
+                                              HBNB_MYSQL_HOST,
+                                              HBNB_MYSQL_DB),
                                       pool_pre_ping=True)
 
-        if env == 'test':
+        if HBNB_ENV == 'test':
             Base.metadata.drop_all(self.__engine)
-
-        Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        self.__session = scoped_session(Session)
 
     def all(self, cls=None):
         """Query on the current database session"""
         from models import storage
-        classes = [BaseModel, User, State, City, Amenity, Place, Review]
+        classes = [cls] if cls else [User, State, City, Amenity, Place, Review]
         objects = {}
-
-        if cls:
-            classes = [cls]
 
         for class_ in classes:
             query = self.__session.query(class_).all()
-            for obj in query:
-                key = '{}.{}'.format(type(obj).__name__, obj.id)
-                objects[key] = obj
+            objects.update({'{}.{}'.format(type(obj).__name__, obj.id): obj for obj in query})
 
         return objects
 
@@ -71,3 +65,7 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(Session)
+
+    def close(self):
+        """Remove open scoped session from the current database"""
+        self.__session.remove()
