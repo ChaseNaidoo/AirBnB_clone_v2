@@ -114,13 +114,13 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class with given parameters"""
+        """Create an object of any class with given parameters"""
         if not args:
             print("** class name missing **")
             return
 
         # Split the arguments into class name and parameters
-        args_list = args.split(' ')
+        args_list = shlex.split(args)
         class_name = args_list[0]
         param_str = ' '.join(args_list[1:])
 
@@ -145,12 +145,12 @@ class HBNBCommand(cmd.Cmd):
                 elif '.' in value:
                     # Float value
                     value = float(value)
-                else:
+                elif value.isdigit():
                     # Integer value
                     value = int(value)
 
-                # Add key-value pair to the params dictionary
-                params[key] = value
+                    # Add key-value pair to the params dictionary
+                    params[key] = value
 
         except Exception as e:
             print(f"Error parsing parameters: {e}")
