@@ -8,23 +8,22 @@ env.hosts = ['100.26.153.46', '52.201.211.87']
 
 def do_deploy(archive_path):
     """Deploys an archive to the web servers"""
-    if not exists(archive_path):
+    if not os.path.isfile(archive_path):
         return False
 
-    try:
-        put(archive_path, '/tmp/')
+    file = os.path.basename(archive_path)
+    name = file.split(".")[0]
 
-        archive_filename = archive_path.split("/")[-1]
-        release_path = '/data/web_static/releases/{}'.format(
-            archive_filename.split(".")[0])
-        run('mkdir -p {}'.format(release_path))
-        run('tar -xzf /tmp/{} -C {}'.format(archive_filename, release_path))
-        run('rm /tmp/{}'.format(archive_filename))
-        run('rm -rf /data/web_static/current')
-        run('ln -s {} /data/web_static/current'.format(release_path))
-        print("New version deployed!")
-        return True
-
-    except Exception as e:
-        print("Deployment failed: {}".format(e))
+    if put(archive_path, f"/tmp/{file}").failed:
         return False
+    if run(f"rm -rf /data/web_static/releases/{name}/").failed or \
+       run(f"mkdir -p /data/web_static/releases/{name}/").failed or \
+       run(f"tar -xzf /tmp/{file} -C /data/web_static/releases/{name}/").failed or \
+       run(f"rm /tmp/{file}").failed or \
+       run(f"mv /data/web_static/releases/{name}/web_static/* /data/web_static/releases/{name}/").failed or \
+       run(f"rm -rf /data/web_static/releases/{name}/web_static").failed or \
+       run("rm -rf /data/web_static/current").failed or \
+       run(f"ln -s /data/web_static/releases/{name}/ /data/web_static/current").failed:
+        return False
+
+    return True
