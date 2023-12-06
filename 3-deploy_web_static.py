@@ -26,6 +26,7 @@ def do_pack():
         archive_path = os.path.join("versions", archive_name)
         return archive_path
 
+
 def do_deploy(archive_path):
     """Deploys an archive to the web servers"""
     if not exists(archive_path):
@@ -48,6 +49,7 @@ def do_deploy(archive_path):
         return True
     except Exception as e:
         return False
+
 
 def deploy():
     """Creates and distributes an archive to your web servers"""
