@@ -11,7 +11,7 @@ def do_deploy(archive_path):
     if not os.path.isfile(archive_path):
         return False
 
-    file = os.path.basename(archive_path)
+    file = archive_path.split("/")[-1]
     name = file.split(".")[0]
 
     if put(archive_path, f"/tmp/{file}").failed:
