@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Fabric script that deploys an archive to web servers"""
 from fabric.api import env, put, run
-from os.path import exists
+import os
 
 env.hosts = ['100.26.153.46', '52.201.211.87']
 
