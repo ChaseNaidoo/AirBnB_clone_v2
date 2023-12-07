@@ -3,43 +3,58 @@
 # Update configuration
 $nginx_conf = "server {
     location /hbnb_static {
-            alias /data/web_static/current/;
-            index index.htm index.html;
+        alias /data/web_static/current;
+        index index.htm index.html;
     }
 }"
 
 package { 'nginx':
-    ensure => 'latest',
-    provider => 'apt'
+  ensure   => 'present',
+  provider => 'apt'
 } ->
 
-file { '/data/web_static/shared/':
-    ensure => 'directory',
+file { '/data':
+  ensure  => 'directory'
 } ->
 
-file { '/data/web_static/releases/test/index.html':
-    ensure  => 'file',
-    content => 'Holberton School',
+file { '/data/web_static':
+  ensure => 'directory'
+} ->
+
+file { '/data/web_static/releases':
+  ensure => 'directory'
+} ->
+
+file { '/data/web_static/releases/test':
+  ensure => 'directory'
+} ->
+
+file { '/data/web_static/shared':
+  ensure => 'directory'
 } ->
 
 file { '/data/web_static/current':
-    ensure => 'link',
-    target => '/data/web_static/releases/test/',
-    force  => true,
-    owner  => 'ubuntu',
-    group  => 'ubuntu',
+  ensure => 'link',
+  target => '/data/web_static/releases/test'
+} ->
+
+exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
+}
+
+file { '/var/www':
+  ensure => 'directory'
+} ->
+
+file { '/var/www/html':
+  ensure => 'directory'
 } ->
 
 file { '/etc/nginx/sites-available/default':
-    ensure  => 'file',
-    content => $nginx_conf,
-    require => File['/data/web_static/current'],
-    notify  => Service['nginx'],
+  ensure  => 'present',
+  content => $nginx_conf
 } ->
 
-service { 'nginx':
-    ensure    => 'running',
-    enable    => true,
-    require   => File['/etc/nginx/sites-available/default'],
-    subscribe => File['/etc/nginx/sites-available/default'],
+exec { 'nginx restart':
+  path => '/etc/init.d/'
 }
