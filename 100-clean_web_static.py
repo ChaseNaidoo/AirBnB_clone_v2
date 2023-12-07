@@ -13,7 +13,7 @@ env.user = "ubuntu"
 def do_clean(number=0):
     """Deletes out-of-date archives from the versions and releases"""
     number = int(number)
-            
+
     local_archives = local("ls -1t versions", capture=True).split("\n")
     if number <= 1:
         local_archives_to_keep = local_archives[:1]
