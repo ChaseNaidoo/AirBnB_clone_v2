@@ -2,8 +2,9 @@
 """ State Module for HBNB project """
 from models.base_model import BaseModel, Base
 from models.city import City
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 import models
 import shlex
 
@@ -18,19 +19,16 @@ class State(BaseModel, Base):
 
     @property
     def cities(self):
-        all_instances = models.storage.all()
-        city_instances = []
+        """ Returns list of cities.id """
+        var = models.storage.all()
+        lista = []
         result = []
-
-        for key in all_instances:
-            instance = key.replace('.', ' ')
-            instance = shlex.split(instance)
-
-            if instance[0] == 'City':
-                city_instances.append(all_instances[key])
-
-        for city in city_instances:
-            if city.state_id == self.id:
-                result.append(city)
-
-        return result
+        for key in var:
+            city = key.replace('.', ' ')
+            city = shlex.split(review)
+            if (city[0] == 'City'):
+                lista.append(var[key])
+        for elem in lista:
+            if (elem.place_id == self.id):
+                result.append(elem)
+        return (result)
