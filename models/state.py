@@ -4,6 +4,7 @@ from models.base_model import BaseModel, Base
 from models.city import City
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+import models
 
 
 class State(BaseModel, Base):
@@ -15,17 +16,7 @@ class State(BaseModel, Base):
                           cascade="all, delete-orphan")
 
     @property
-    def get_cities(self):
+    def cities(self):
         """ Getter attribute that returns
         the list of City instances """
-        from models import storage
-        return [city for city in storage.all(City).values()
-                if city.state_id == self.id]
-
-    @property
-    def cities(self):
-        """ Getter attribute that returns the list of
-        City objects linked to the current State """
-        from models import storage
-        return [city for city in storage.all(City).values()
-                if city.state_id == self.id]
+        return [city for city in models.storage.all(City).values() if city.state_id == self.id]

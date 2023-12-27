@@ -6,6 +6,7 @@ from sqlalchemy import Column, Table, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from os import getenv
 import models
+import shlex
 
 
 place_amenity = Table("place_amenity", Base.metadata,
