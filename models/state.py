@@ -25,7 +25,7 @@ class State(BaseModel, Base):
         result = []
         for key in var:
             city = key.replace('.', ' ')
-            city = shlex.split(review)
+            city = shlex.split(city)
             if (city[0] == 'City'):
                 lista.append(var[key])
         for elem in lista:
